@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -22,13 +20,7 @@ type PlantType struct {
 }
 
 func Connect() (*mongo.Client, context.Context) {
-	cnnStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority",
-		viper.GetString("database.user"),
-		viper.GetString("database.password"),
-		viper.GetString("database.url"),
-		viper.GetString("database.name"))
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(cnnStr))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://kenely:ToBY42Ma@cluster0.2paaq.mongodb.net/house-plant-tracker?retryWrites=true&w=majority"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,7 +37,7 @@ func Connect() (*mongo.Client, context.Context) {
 func getPlantTypes(ginContext *gin.Context) {
 	client, context := Connect()
 
-	collection := client.Database(viper.GetString("database.name")).Collection("types")
+	collection := client.Database("house-plant-tracker").Collection("types")
 	cur, currErr := collection.Find(context, bson.D{})
 
 	if currErr != nil {
