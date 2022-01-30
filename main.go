@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,8 +20,19 @@ type PlantType struct {
 	Active bool   `bson:"active,omitempty"`
 }
 
+func getEnvVar(name string) string {
+	data := os.Getenv(name)
+
+	if data == "" {
+		log.Fatal(fmt.Sprintf("$%s must be set", name))
+		return ""
+	}
+
+	return data
+}
+
 func Connect() (*mongo.Client, context.Context) {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://kenely:ToBY42Ma@cluster0.2paaq.mongodb.net/house-plant-tracker?retryWrites=true&w=majority"))
+	client, err := mongo.NewClient(options.Client().ApplyURI(fmt.Sprintf("%s/%s", getEnvVar("DATABASE.URI"), getEnvVar("DATABASE.NAME"))))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +49,7 @@ func Connect() (*mongo.Client, context.Context) {
 func getPlantTypes(ginContext *gin.Context) {
 	client, context := Connect()
 
-	collection := client.Database("house-plant-tracker").Collection("types")
+	collection := client.Database(getEnvVar("DATABASE.NAME")).Collection("types")
 	cur, currErr := collection.Find(context, bson.D{})
 
 	if currErr != nil {
@@ -56,11 +68,7 @@ func getPlantTypes(ginContext *gin.Context) {
 }
 
 func main() {
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		log.Fatal("$PORT must be set")
-	}
+	port := getEnvVar("PORT")
 
 	router := gin.New()
 	router.Use(gin.Logger())
