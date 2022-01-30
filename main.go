@@ -50,7 +50,7 @@ func getPlantTypes(ginContext *gin.Context) {
 		panic(err)
 	}
 
-	ginContext.IndentedJSON(http.StatusOK, types)
+	ginContext.JSON(http.StatusOK, types)
 
 	client.Disconnect(context)
 }
