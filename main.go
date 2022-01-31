@@ -34,7 +34,7 @@ func Connect() (*mongo.Client, context.Context) {
 	cnnStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority",
 		getEnvVar("DATABASE.USER"),
 		getEnvVar("DATABASE.PASSWORD"),
-		getEnvVar("DATABASE.URL"),
+		getEnvVar("DATABASE.URI"),
 		getEnvVar("DATABASE.NAME"))
 
 	log.Fatal(cnnStr)
@@ -57,7 +57,7 @@ func getPlantTypes(ginContext *gin.Context) {
 	cnnStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority",
 		getEnvVar("DATABASE.USER"),
 		getEnvVar("DATABASE.PASSWORD"),
-		getEnvVar("DATABASE.URL"),
+		getEnvVar("DATABASE.URI"),
 		getEnvVar("DATABASE.NAME"))
 
 	ginContext.JSON(http.StatusOK, cnnStr)
