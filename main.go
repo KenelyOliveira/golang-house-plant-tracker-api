@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -54,32 +55,24 @@ func Connect() (*mongo.Client, context.Context) {
 }
 
 func getPlantTypes(ginContext *gin.Context) {
-	cnnStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority",
-		getEnvVar("DATABASE.USER"),
-		getEnvVar("DATABASE.PASSWORD"),
-		getEnvVar("DATABASE.URI"),
-		getEnvVar("DATABASE.NAME"))
+	client, context := Connect()
 
-	ginContext.JSON(http.StatusOK, cnnStr)
+	collection := client.Database(getEnvVar("DATABASE.NAME")).Collection("types")
+	cur, currErr := collection.Find(context, bson.D{})
 
-	// client, context := Connect()
+	if currErr != nil {
+		panic(currErr)
+	}
+	defer cur.Close(context)
 
-	// collection := client.Database(getEnvVar("DATABASE.NAME")).Collection("types")
-	// cur, currErr := collection.Find(context, bson.D{})
+	var types []PlantType
+	if err := cur.All(context, &types); err != nil {
+		panic(err)
+	}
 
-	// if currErr != nil {
-	// 	panic(currErr)
-	// }
-	// defer cur.Close(context)
+	ginContext.JSON(http.StatusOK, types)
 
-	// var types []PlantType
-	// if err := cur.All(context, &types); err != nil {
-	// 	panic(err)
-	// }
-
-	// ginContext.JSON(http.StatusOK, types)
-
-	// client.Disconnect(context)
+	client.Disconnect(context)
 }
 
 func main() {
