@@ -38,8 +38,6 @@ func Connect() (*mongo.Client, context.Context) {
 		getEnvVar("DATABASE.URI"),
 		getEnvVar("DATABASE.NAME"))
 
-	log.Fatal(cnnStr)
-
 	client, err := mongo.NewClient(options.Client().ApplyURI(cnnStr))
 	if err != nil {
 		log.Fatal(err)
