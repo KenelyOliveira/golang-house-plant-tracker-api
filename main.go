@@ -32,7 +32,13 @@ func getEnvVar(name string) string {
 }
 
 func Connect() (*mongo.Client, context.Context) {
-	client, err := mongo.NewClient(options.Client().ApplyURI(fmt.Sprintf("%s/%s", getEnvVar("DATABASE.URI"), getEnvVar("DATABASE.NAME"))))
+	cnnStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority",
+		getEnvVar("DATABASE.USER"),
+		getEnvVar("DATABASE.PASSWORD"),
+		getEnvVar("DATABASE.URL"),
+		getEnvVar("DATABASE.NAME"))
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(cnnStr))
 	if err != nil {
 		log.Fatal(err)
 	}
