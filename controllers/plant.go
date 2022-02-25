@@ -26,21 +26,13 @@ func SavePlant(ginContext *gin.Context) {
 		return
 	}
 
-	newData := Plant{
-		Name:    input.Name,
-		Type:    input.Type,
-		Species: input.Species,
-		Image:   input.Image,
-		Active:  true,
-	}
-
-	result, err := collection.InsertOne(context, newData)
+	result, err := collection.InsertOne(context, input)
 
 	if err != nil {
 		panic(err)
 	}
 
-	ginContext.JSON(http.StatusOK, result.InsertedID)
+	ginContext.JSON(http.StatusCreated, result.InsertedID)
 
 	client.Disconnect(context)
 }
